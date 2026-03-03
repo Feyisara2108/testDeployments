@@ -25,6 +25,10 @@ describe("SaveAsset", function () {
 		expect(await erc20Token.symbol()).to.eq("MTK");
 		expect(await erc20Token.decimals()).to.eq(18n);
 	});
+     //
+	it("should mint correctly for erc20 token", async function () {
+		const _mint = ethers
+	})
 
 	it("should be able to deposit ether in save asset contract", async function (){
 		const depositAmount = ethers.parseEther("2");
@@ -61,16 +65,20 @@ describe("SaveAsset", function () {
 		expect(await saveAsset.connect(addr2).getContractBalance()).to.eq(0);
 	});
 
-	it("should be able to deposit ERC20 token ether in save asset contract", async function(){
-        const depositERC20 = ethers.parseEther("2");
-		await saveAsset.connect(addr3).depositERC20({ amount: depositERC20});
-		expect (await saveAsset.connect(addr3).depositERC20()).to.eq(depositERC20);
-	});
+	it("should be able to deposit ERC20 token in save asset contract", async function () {
+		const mintAmount = ethers.parseEther("100");
+		const depositAmount = ethers.parseEther("2");
+		const saveAssetAddress = await saveAsset.getAddress();
 
+		//Mint tokens to addr1 first
+		await erc20Token._mint(addr1.address, mintAmount);
 
+		//Approve SaveAsset to spend addr1 tokens
+		await erc20Token.connect(addr1).approve(saveAssetAddress, depositAmount);
 
+		//deposit
+		await saveAsset.connect(addr1).depositERC20(depositAmount);
 
-
-
-
-})
+		expect(await saveAsset.connect(addr1).getErc20SavingsBalance()).to.eq(depositAmount);
+    });
+});
