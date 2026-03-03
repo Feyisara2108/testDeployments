@@ -71,7 +71,7 @@ describe("SaveAsset", function () {
 		const saveAssetAddress = await saveAsset.getAddress();
 
 		//Mint tokens to addr1 first
-		await erc20Token._mint(addr1.address, mintAmount);
+		await erc20Token.mint(addr1.address, mintAmount);
 
 		//Approve SaveAsset to spend addr1 tokens
 		await erc20Token.connect(addr1).approve(saveAssetAddress, depositAmount);
