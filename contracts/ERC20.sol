@@ -44,7 +44,7 @@ contract ERC20 is IERC20 {
         return allowances[_owner][_spender];
     }
 
-    function _mint(address _owner, uint256 _amount) internal {
+    function mint(address _owner, uint256 _amount) public {
         require(_owner != address(0), "Can't transfer to address zero");
         total_supply = total_supply + _amount;
         balances[_owner] = balances[_owner] + _amount;

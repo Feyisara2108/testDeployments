@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
 //Mapping is a key value pair like using the same nin and bvn to open different account

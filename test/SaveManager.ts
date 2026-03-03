@@ -5,41 +5,31 @@ describe("SchoolToken & SchoolManager", function () {
     let schoolToken: any, schoolManager: any;
     let owner: any, principal: any, student1: any, student2: any, staff1: any, staff2: any;
 
-    // ─── SETUP ─────────────────────────────────────────────────────────────────
-    // Runs before every test — deploys fresh contracts so tests don't affect each other
     beforeEach(async function () {
         [owner, principal, student1, student2, staff1, staff2] = await ethers.getSigners();
 
         const SchoolToken = await ethers.getContractFactory("SchoolToken");
         const SchoolManager = await ethers.getContractFactory("SchoolManager");
 
-        // Deploy token with 1000 initial supply to owner
         const initialSupply = ethers.parseEther("1000");
         schoolToken = await SchoolToken.connect(owner).deploy(initialSupply);
         await schoolToken.waitForDeployment();
 
         const schoolTokenAddress = await schoolToken.getAddress();
 
-        // Deploy SchoolManager with principal as admin
         schoolManager = await SchoolManager.connect(principal).deploy(schoolTokenAddress);
         await schoolManager.waitForDeployment();
 
         const schoolManagerAddress = await schoolManager.getAddress();
 
-        // Give students tokens so they can pay fees
-        // student1 gets 100 tokens, student2 gets 100 tokens
         await schoolToken.connect(owner).mint(student1.address, ethers.parseEther("100"));
         await schoolToken.connect(owner).mint(student2.address, ethers.parseEther("100"));
 
-        // Students approve SchoolManager to spend their tokens
         await schoolToken.connect(student1).approve(schoolManagerAddress, ethers.parseEther("100"));
         await schoolToken.connect(student2).approve(schoolManagerAddress, ethers.parseEther("100"));
     });
 
 
-    // ══════════════════════════════════════════════════════════════════════════
-    // SCHOOL TOKEN TESTS
-    // ══════════════════════════════════════════════════════════════════════════
 
     describe("SchoolToken - Deployment", function () {
         it("should have correct name, symbol and decimals", async function () {
@@ -195,10 +185,7 @@ describe("SchoolToken & SchoolManager", function () {
         });
     });
 
-
-    // ══════════════════════════════════════════════════════════════════════════
     // SCHOOL MANAGER TESTS
-    // ══════════════════════════════════════════════════════════════════════════
 
     describe("SchoolManager - Deployment", function () {
         it("should set correct principal", async function () {
@@ -292,12 +279,10 @@ describe("SchoolToken & SchoolManager", function () {
 
     describe("SchoolManager - Pay Staff", function () {
         beforeEach(async function () {
-            // Register students to fill school balance
-            await schoolManager.connect(student1).registerStudent("Alice", 400); // 40 tokens
-            await schoolManager.connect(student2).registerStudent("Bob", 400);   // 40 tokens
-            // School now has 80 tokens
+        
+            await schoolManager.connect(student1).registerStudent("Alice", 400); 
+            await schoolManager.connect(student2).registerStudent("Bob", 400);   
 
-            // Register staff
             await schoolManager.connect(principal).registerStaff(
                 staff1.address, "Mr. John", ethers.parseEther("10")
             );
@@ -330,7 +315,7 @@ describe("SchoolToken & SchoolManager", function () {
         });
 
         it("should revert payStaff if school has insufficient funds", async function () {
-            // Register expensive staff
+        
             await schoolManager.connect(principal).registerStaff(
                 owner.address, "Big Boss", ethers.parseEther("9999")
             );
@@ -409,7 +394,6 @@ describe("SchoolToken & SchoolManager", function () {
             await schoolManager.connect(principal).removeStaff(staff1.address);
             await schoolManager.connect(principal).payAllStaff();
 
-            // Removed staff should have received nothing
             expect(await schoolToken.balanceOf(staff1.address)).to.eq(0);
         });
 
@@ -425,8 +409,8 @@ describe("SchoolToken & SchoolManager", function () {
     describe("SchoolManager - Withdraw Fees", function () {
         beforeEach(async function () {
             // Fill school with tokens from student registrations
-            await schoolManager.connect(student1).registerStudent("Alice", 400); // 40 tokens
-            await schoolManager.connect(student2).registerStudent("Bob", 400);   // 40 tokens
+            await schoolManager.connect(student1).registerStudent("Alice", 400); 
+            await schoolManager.connect(student2).registerStudent("Bob", 400);   
             // School has 80 tokens
         });
 
@@ -492,7 +476,7 @@ describe("SchoolToken & SchoolManager", function () {
         });
 
         it("should return correct school token balance", async function () {
-            await schoolManager.connect(student1).registerStudent("Alice", 300); // 30 tokens
+            await schoolManager.connect(student1).registerStudent("Alice", 300); 
             expect(await schoolManager.getSchoolBalance()).to.eq(ethers.parseEther("30"));
         });
     });
